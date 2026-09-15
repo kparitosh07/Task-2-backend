@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Chat & Video Call Interface</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Pure CSS Interactive State Controllers -->
+  <input type="checkbox" id="video-call-toggle" class="css-controller">
+  <input type="checkbox" id="mute-toggle" class="css-controller">
+  <input type="checkbox" id="camera-toggle" class="css-controller">
+  <input type="checkbox" id="flip-camera-toggle" class="css-controller">
+  <input type="checkbox" id="pip-mode-toggle" class="css-controller">
+
+  <div class="telegram-app">
+
+    <!-- ====================================================================
+         LEFT SIDEBAR (Chats List)
+         ==================================================================== -->
+    <aside class="sidebar">
+      <!-- Sidebar Top Bar -->
+      <div class="sidebar-top">
+        <button class="menu-btn" title="Menu" aria-label="Open Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="search-input" placeholder="Search chats or channels...">
+        </div>
+      </div>
+
+      <!-- Folder Tabs -->
+      <div class="chat-folders">
+        <span class="folder-tab active">All <span class="folder-count"></span></span>
+        <span class="folder-tab">Personal <span class="folder-count"></span></span>
+        <span class="folder-tab">Work</span>
+        <span class="folder-tab">Channels</span>
+        <span class="folder-tab">Bots</span>
+      </div>
+
+      <!-- Chat Items List -->
+      <div class="chat-list">
+        <!-- Active Chat -->
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         MAIN CHAT WINDOW
+         ==================================================================== -->
+    <main class="chat-window">
+      <!-- Minimized Call Status Floating Bar -->
+      <div class="call-floating-status-bar">
+        <div class="call-floating-left">
+          <span class="call-pulse-dot"></span>
+          <span>Elena Rostova • Ongoing Video Call (04:12)</span>
+        </div>
+        <label for="pip-mode-toggle" class="call-floating-btn">Expand Call</label>
+      </div>
+
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="chat-header-user">
+          <div class="avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" class="avatar" style="width: 42px; height: 42px;" alt="Elena Rostova">
+            <span class="online-badge"></span>
+          </div>
+          <div class="chat-header-info">
+            <span class="chat-header-name">
+              Elena Rostova
+              <svg class="verified-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </span>
+            <span class="chat-header-status">online</span>
+          </div>
+        </div>
+
+        <!-- Chat Header Actions -->
+        <div class="chat-header-actions">
+          <!-- Audio Call Action -->
+          <button class="icon-action-btn" data-tooltip="Audio Call" aria-label="Audio Call">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+          </button>
+
+          <!-- Telegram Signature Video Call Button (Pure CSS Trigger) -->
+          <label for="video-call-toggle" class="icon-action-btn video-call-trigger" data-tooltip="Start Video Call" aria-label="Start Video Call">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="3" ry="3"></rect>
+            </svg>
+          </label>
+
+          <!-- Search In Chat -->
+          <button class="icon-action-btn" data-tooltip="Search Chat" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+
+          <!-- More Options Menu -->
+          <button class="icon-action-btn" data-tooltip="More Options" aria-label="More">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="1.5"></circle>
+              <circle cx="12" cy="5" r="1.5"></circle>
+              <circle cx="12" cy="19" r="1.5"></circle>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Feed Messages -->
+      <div class="chat-feed">
+        <div class="empty-chat-notice">
+          <div class="empty-chat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <span class="empty-chat-title">No messages here yet...</span>
+          <span class="empty-chat-desc">Send a message or tap the video camera icon above to start a video call</span>
+        </div>
+      </div>
+
+      <!-- Chat Bottom Input Bar -->
+      <footer class="chat-input-bar">
+        <div class="input-container">
+          <button class="attach-btn" title="Attach file or media" aria-label="Attach File">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+            </svg>
+          </button>
+          <input type="text" class="msg-input" placeholder="Write a message...">
+          <button class="emoji-btn" title="Choose emoji or sticker" aria-label="Emoji Picker">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+              <line x1="9" y1="9" x2="9.01" y2="9"></line>
+              <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+          </button>
+        </div>
+
+        <button class="send-btn" title="Send or Record voice message" aria-label="Voice Message / Send">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </button>
+      </footer>
+    </main>
+
+    <!-- ====================================================================
+         TELEGRAM VIDEO CALL MODAL OVERLAY (Pure HTML & CSS)
+         ==================================================================== -->
+    <div class="video-call-modal">
+      <!-- Top Call Bar -->
+      <div class="call-header">
+        <div class="call-header-left">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" class="call-user-avatar-sm" alt="Elena">
+          <div class="call-header-info">
+            <span class="call-user-name">Elena Rostova</span>
+            <span class="call-duration">
+              <span class="call-pulse-dot"></span>
+              04:12
+            </span>
+          </div>
+        </div>
+
+        <!-- Telegram's Signature 4-Emoji End-to-End Encryption Key -->
+        <div class="encryption-key-pill" title="End-to-End Encryption Key Verification (Telegram Signature Feature)">
+          <span class="encryption-emojis">🍋 🍒 🍓 🍇</span>
+          <span class="encryption-label">Encrypted</span>
+        </div>
+
+        <!-- Top Right Controls -->
+        <div class="call-header-right">
+          <!-- Picture-in-Picture / Minimize Toggle -->
+          <label for="pip-mode-toggle" class="call-top-btn" title="Minimize / Picture-in-Picture">
+            <!-- Icon when Fullscreen (Minimize) -->
+            <svg class="icon-minimize" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 14 10 14 10 20"></polyline>
+              <polyline points="20 10 14 10 14 4"></polyline>
+              <line x1="14" y1="10" x2="21" y2="3"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+            <!-- Icon when Minimized (Maximize) -->
+            <svg class="icon-maximize" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+          </label>
+
+          <!-- Close / Exit Call Button -->
+          <label for="video-call-toggle" class="call-top-btn" title="Close Overlay">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </label>
+        </div>
+      </div>
+
+      <!-- Remote Participant Video Feed Canvas -->
+      <div class="remote-video-feed">
+        <div class="video-canvas"></div>
+        <div class="audio-ripple"></div>
+
+        <div class="video-status-tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+          <span>HD 1080p • 60 FPS</span>
+        </div>
+
+        <!-- Local Floating Picture-in-Picture (Your Camera) -->
+        <div class="pip-preview" title="Your Front Camera Feed">
+          <div class="pip-video">
+            <label for="flip-camera-toggle" class="pip-switch-icon" title="Flip Camera View">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </label>
+            <span class="pip-label">You (Camera)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Call Controls Pill -->
+      <div class="call-controls-bar">
+        <!-- Mic Toggle (Pure CSS Checkbox Controlled) -->
+        <label for="mute-toggle" class="control-btn btn-mic" title="Toggle Microphone">
+          <!-- Unmuted Icon -->
+          <svg class="icon-unmuted" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+          <!-- Muted Icon -->
+          <svg class="icon-muted" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
+            <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </label>
+
+        <!-- Camera Video Toggle (Pure CSS Checkbox Controlled) -->
+        <label for="camera-toggle" class="control-btn btn-video" title="Toggle Camera">
+          <!-- Cam ON Icon -->
+          <svg class="icon-cam-on" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14" rx="3" ry="3"></rect>
+          </svg>
+          <!-- Cam OFF Icon -->
+          <svg class="icon-cam-off" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M21 15.5l-5-3.5V7a2 2 0 0 0-2-2H7.5"></path>
+            <rect x="3" y="7" width="13" height="12" rx="2"></rect>
+          </svg>
+        </label>
+
+        <!-- Flip Camera View -->
+        <label for="flip-camera-toggle" class="control-btn" title="Flip Camera" aria-label="Flip Camera">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </label>
+
+        <!-- Screen Share -->
+        <button class="control-btn" title="Share Screen" aria-label="Share Screen">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </button>
+
+        <!-- Red End Call Button (Pure CSS Trigger: closes video call overlay) -->
+        <label for="video-call-toggle" class="control-btn btn-end-call" title="End Call" aria-label="End Call">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
+            <line x1="23" y1="1" x2="1" y2="23"></line>
+          </svg>
+        </label>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
