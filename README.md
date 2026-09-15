@@ -40,13 +40,13 @@ node server.js
 
 ## 📁 Structure
 
-
+```text
 BACKEND/
 ├── .env
 ├── .gitignore
 ├── package.json
 └── index.js
-
+```
 
 ## 👨‍💻 Author
 
