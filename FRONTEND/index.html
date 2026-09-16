@@ -71,17 +71,16 @@
       <header class="chat-header">
         <div class="chat-header-user">
           <div class="avatar-wrap">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" class="avatar" style="width: 42px; height: 42px;" alt="Elena Rostova">
-            <span class="online-badge"></span>
+              <div class="avatar grad-1" id="chat-header-avatar">?</div>
+              <span class="online-badge"></span>
           </div>
           <div class="chat-header-info">
-            <span class="chat-header-name">
-              Elena Rostova
-              <svg class="verified-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
+            <span class="chat-header-name" id="chat-header-name">
+                Select a chat
             </span>
-            <span class="chat-header-status">online</span>
+            <span class="chat-header-status" id="chat-header-status">
+                offline
+            </span>
           </div>
         </div>
 
@@ -122,7 +121,7 @@
       </header>
 
       <!-- Chat Feed Messages -->
-      <div class="chat-feed">
+      <!-- <div class="chat-feed">
         <div class="empty-chat-notice">
           <div class="empty-chat-icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -132,7 +131,27 @@
           <span class="empty-chat-title">No messages here yet...</span>
           <span class="empty-chat-desc">Send a message or tap the video camera icon above to start a video call</span>
         </div>
-      </div>
+      </div> -->
+
+<div class="chat-feed">
+
+    <div class="empty-chat-notice">
+        <div class="empty-chat-icon">
+            <!-- your SVG -->
+        </div>
+
+        <span class="empty-chat-title">
+            No messages here yet...
+        </span>
+
+        <span class="empty-chat-desc">
+            Send a message or tap the video camera icon above to start a video call
+        </span>
+    </div>
+
+</div>
+
+
 
       <!-- Chat Bottom Input Bar -->
       <footer class="chat-input-bar">
@@ -142,7 +161,7 @@
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
             </svg>
           </button>
-          <input type="text" class="msg-input" placeholder="Write a message...">
+          <input type="text" class="msg-input" id="msg-input" placeholder="Write a message...">
           <button class="emoji-btn" title="Choose emoji or sticker" aria-label="Emoji Picker">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
@@ -153,13 +172,8 @@
           </button>
         </div>
 
-        <button class="send-btn" title="Send or Record voice message" aria-label="Voice Message / Send">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-          </svg>
+        <button class="send-btn" title="Send" aria-label="Send">
+          <svg fill="#000000" width="22" height="22" viewBox="0 0 24 24" id="send" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color"><line id="secondary" x1="7" y1="12" x2="11" y2="12" style="fill: none; stroke: rgb(44, 169, 188); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></line><path id="primary" d="M5.44,4.15l14.65,7a1,1,0,0,1,0,1.8l-14.65,7A1,1,0,0,1,4.1,18.54l2.72-6.13a1.06,1.06,0,0,0,0-.82L4.1,5.46A1,1,0,0,1,5.44,4.15Z" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>
         </button>
       </footer>
     </main>
@@ -309,6 +323,7 @@
     </div>
 
   </div>
-
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

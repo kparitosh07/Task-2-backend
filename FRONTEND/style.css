@@ -224,18 +224,18 @@ html, body {
   border-radius: 3px 3px 0 0;
 }
 
-.folder-count {
+/* .folder-count {
   background-color: var(--bg-input);
   padding: 1px 6px;
   border-radius: 10px;
   font-size: 11px;
   margin-left: 4px;
-}
+} */
 
-.folder-tab.active .folder-count {
+/* .folder-tab.active .folder-count {
   background-color: var(--accent-color);
   color: #fff;
-}
+} */
 
 /* Chat List */
 .chat-list {
@@ -265,6 +265,27 @@ html, body {
 
 .chat-item.active {
   background-color: var(--bg-active);
+}
+
+.chat-item-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.chat-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-item-status {
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 /* Avatars */
