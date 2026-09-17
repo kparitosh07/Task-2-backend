@@ -59,6 +59,165 @@
   box-sizing: border-box;
 }
 
+
+/* =========================
+   AUTH SCREEN
+   ========================= */
+
+.auth-screen {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #243b55,
+            var(--bg-primary) 55%
+        );
+
+    z-index: 1000;
+}
+
+.auth-card {
+    width: 380px;
+    padding: 40px;
+
+    background: var(--bg-secondary);
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow-overlay);
+
+    text-align: center;
+}
+
+.auth-logo {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--accent-color);
+
+    font-size: 32px;
+}
+
+.auth-card h1 {
+    margin-bottom: 8px;
+
+    font-size: 28px;
+
+    color: var(--text-primary);
+}
+
+.auth-subtitle {
+    margin-bottom: 25px;
+
+    color: var(--text-secondary);
+}
+
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.auth-card input {
+    width: 100%;
+
+    padding: 13px 15px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 10px;
+
+    background: var(--bg-input);
+
+    color: var(--text-primary);
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+.auth-card input:focus {
+    border-color: var(--accent-color);
+}
+
+.auth-card input::placeholder {
+    color: var(--text-secondary);
+}
+
+.auth-card form button {
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--accent-color);
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.auth-card form button:hover {
+    background: var(--accent-hover);
+}
+
+.auth-switch {
+    margin-top: 20px;
+
+    color: var(--text-secondary);
+}
+
+.auth-switch button {
+    border: none;
+    background: none;
+
+    color: var(--text-accent);
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+.auth-switch button:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
+
+#auth-error {
+    margin-top: 15px;
+
+    color: #e57373;
+
+    font-size: 13px;
+}
+
 html, body {
   width: 100%;
   height: 100%;

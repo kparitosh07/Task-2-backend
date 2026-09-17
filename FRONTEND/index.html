@@ -15,6 +15,137 @@
   <input type="checkbox" id="flip-camera-toggle" class="css-controller">
   <input type="checkbox" id="pip-mode-toggle" class="css-controller">
 
+  <div class="auth-screen" id="auth-screen">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            💬
+        </div>
+
+        <h1>ChatApp</h1>
+
+        <p class="auth-subtitle">
+            Connect with people instantly
+        </p>
+
+        <form id="login-form">
+
+            <input
+                type="text"
+                id="login-username"
+                placeholder="Username"
+                autocomplete="username"
+                required
+            >
+
+            <input
+                type="password"
+                id="login-password"
+                placeholder="Password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <p class="auth-switch">
+
+            Don't have an account?
+
+            <button
+                type="button"
+                id="show-signup"
+            >
+                Sign Up
+            </button>
+
+        </p>
+
+        <p id="login-error"></p>
+
+    </div>
+
+</div>
+
+
+<!-- SIGNUP SCREEN -->
+<div
+    class="auth-screen hidden"
+    id="signup-screen"
+>
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            💬
+        </div>
+
+        <h1>Create Account</h1>
+
+        <p class="auth-subtitle">
+            Choose your unique username
+        </p>
+
+        <form id="signup-form">
+
+            <input
+                type="text"
+                id="signup-username"
+                placeholder="Username"
+                minlength="3"
+                maxlength="20"
+                autocomplete="username"
+                required
+            >
+
+            <input
+                type="password"
+                id="signup-password"
+                placeholder="Password"
+                minlength="6"
+                autocomplete="new-password"
+                required
+            >
+
+            <input
+                type="password"
+                id="signup-confirm-password"
+                placeholder="Confirm Password"
+                minlength="6"
+                autocomplete="new-password"
+                required
+            >
+
+            <button type="submit">
+                Create Account
+            </button>
+
+        </form>
+
+        <p class="auth-switch">
+
+            Already have an account?
+
+            <button
+                type="button"
+                id="show-login"
+            >
+                Login
+            </button>
+
+        </p>
+
+        <p id="signup-error"></p>
+
+    </div>
+
+</div>
+
   <div class="telegram-app">
 
     <!-- ====================================================================
