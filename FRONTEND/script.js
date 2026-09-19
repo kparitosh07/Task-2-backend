@@ -19,8 +19,20 @@ const chatHeaderName = document.getElementById("chat-header-name");
 const chatHeaderStatus = document.getElementById("chat-header-status");
 const chatHeaderAvatar = document.getElementById("chat-header-avatar");
 
+const sidebarProfileAvatar =document.getElementById("sidebar-profile-avatar");
+
+const sidebarProfileName =document.getElementById("sidebar-profile-name");
+
+const logoutBtn =document.getElementById("logout-btn");
+
+const profileInput = document.getElementById("signup-profile");
+const profilePreview = document.getElementById("profile-preview");
+const profilePlaceholder = document.getElementById("profile-placeholder");
+
 let selectedUserId = null;
 let selectedUserName = null;
+
+let selectedUserProfile = "";
 
 const chatWelcome = document.getElementById("chat-welcome");
 const chatScreen = document.getElementById("chat-screen");
@@ -29,16 +41,22 @@ loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     loginError.textContent = "";
 
-    const username = document.getElementById("login-username").value.trim();
+    const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
 
+    if (!email.endsWith("@akgec.ac.in")) {
+        loginError.textContent =
+            "Please use your AKGEC email (@akgec.ac.in).";
+        return;
+    }
+    
     try {
         const response = await fetch("/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
@@ -53,6 +71,8 @@ loginForm.addEventListener("submit", async (e) => {
         localStorage.setItem("chatapp_token", data.token);
         localStorage.setItem("chatapp_user", JSON.stringify(data.user));
 
+        updateSidebarProfile();
+
         authScreen.classList.add("hidden");
         connectSocket(data.token);
     } catch (error) {
@@ -66,6 +86,7 @@ signupForm.addEventListener("submit", async (e) => {
     signupError.textContent = "";
 
     const username = document.getElementById("signup-username").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
     const password = document.getElementById("signup-password").value;
     const confirmPassword = document.getElementById("signup-confirm-password").value;
 
@@ -74,13 +95,41 @@ signupForm.addEventListener("submit", async (e) => {
         return;
     }
 
+    if (password.length < 9) {
+        signupError.textContent =
+            "Password must be more than 8 characters";
+        return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+        signupError.textContent =
+            "Password must contain at least one capital letter";
+        return;
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\]\/+=;'`~]/.test(password)) {
+        signupError.textContent =
+            "Password must contain at least one special character";
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("password", password);
+
+    const profilePicture = profileInput.files[0];
+
+    if (profilePicture) {
+        formData.append("profilePicture", profilePicture);
+    }
+
+
     try {
         const response = await fetch("/api/signup", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, password })
+            body: formData
         });
 
         const data = await response.json();
@@ -93,6 +142,9 @@ signupForm.addEventListener("submit", async (e) => {
         alert("Account created successfully! Please login.");
 
         signupForm.reset();
+        profilePreview.src = "";
+        profilePreview.style.display = "none";
+        profilePlaceholder.style.display = "flex";
         signupScreen.classList.add("hidden");
         authScreen.classList.remove("hidden");
     } catch (error) {
@@ -217,11 +269,14 @@ function addChatUser(user, index = 0) {
     item.classList.add("chat-item");
     item.dataset.userId = user.id;
     item.dataset.username = user.username;
+    item.dataset.profile = user.profile || "";
 
     item.innerHTML = `
         <div class="avatar-wrap">
             <div class="avatar grad-${(index % 5) + 1}">
-                ${escapeHTML(user.username.charAt(0).toUpperCase())}
+                ${ 
+                    user.profile? `<img src="${escapeHTML(user.profile)}" alt="Profile">`: escapeHTML(user.username.charAt(0).toUpperCase())
+                }
             </div>
             <span class="online-badge ${user.online ? "" : "offline"}"></span>
         </div>
@@ -296,6 +351,7 @@ chatList.addEventListener("click", (e) => {
 
     selectedUserId = chatItem.dataset.userId;
     selectedUserName = chatItem.dataset.username;
+    selectedUserProfile = chatItem.dataset.profile || "";
 
     chatWelcome.classList.add("hidden");
     chatScreen.classList.remove("hidden");
@@ -308,7 +364,15 @@ chatList.addEventListener("click", (e) => {
     chatHeaderStatus.textContent = isOnline ? "online" : "offline";
     chatHeaderStatus.classList.toggle("offline", !isOnline);
 
-    chatHeaderAvatar.textContent = selectedUserName.charAt(0).toUpperCase();
+    if (selectedUserProfile) {
+        chatHeaderAvatar.innerHTML = `
+            <img src="${escapeHTML(selectedUserProfile)}" alt="Profile">
+        `;
+    } else {
+        chatHeaderAvatar.textContent =
+            selectedUserName.charAt(0).toUpperCase();
+    }
+
     chatFeed.innerHTML = "";
     socket.emit("load-messages", selectedUserId);
 });
@@ -371,20 +435,10 @@ function displayMessage(data, isOutgoing) {
             !isOutgoing
                 ? `
                     <div class="avatar-wrap">
-                        <div
-                            class="msg-avatar"
-                            style="
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                background:#5288c1;
-                                color:white;
-                                font-weight:600;
-                            "
-                        >
-                            ${escapeHTML(
-                                senderName.charAt(0).toUpperCase()
-                            )}
+                        <div class="msg-avatar">
+                            ${
+                                data.senderProfile? `<img src="${escapeHTML(data.senderProfile)}" alt="Profile">`: escapeHTML(senderName.charAt(0).toUpperCase())
+                            }
                         </div>
                     </div>
                 `
@@ -464,6 +518,7 @@ const savedUser = localStorage.getItem("chatapp_user");
 if (savedToken && savedUser) {
     try {
         currentUser = JSON.parse(savedUser);
+        updateSidebarProfile();
         authScreen.classList.add("hidden");
         connectSocket(savedToken);
     } catch (error) {
@@ -472,3 +527,68 @@ if (savedToken && savedUser) {
         localStorage.removeItem("chatapp_user");
     }
 }
+
+
+profileInput.addEventListener("change", () => {
+
+    const file = profileInput.files[0];
+
+    if (!file) return;
+
+    const imageURL = URL.createObjectURL(file);
+
+    profilePreview.src = imageURL;
+    profilePreview.style.display = "block";
+
+    profilePlaceholder.style.display = "none";
+});
+
+function updateSidebarProfile() {
+
+    if (!currentUser) return;
+
+    sidebarProfileName.textContent =
+        currentUser.username;
+
+    if (currentUser.profile) {
+
+        sidebarProfileAvatar.innerHTML = `
+            <img
+                src="${escapeHTML(currentUser.profile)}"
+                alt="Profile"
+            >
+        `;
+
+    } else {
+
+        sidebarProfileAvatar.textContent =
+            currentUser.username
+                .charAt(0)
+                .toUpperCase();
+    }
+}
+
+logoutBtn.addEventListener("click", () => {
+
+    if (socket) {
+        socket.disconnect();
+        socket = null;
+    }
+
+    localStorage.removeItem("chatapp_token");
+    localStorage.removeItem("chatapp_user");
+
+    currentUser = null;
+    selectedUserId = null;
+    selectedUserName = null;
+    selectedUserProfile = "";
+
+    chatList.innerHTML = "";
+
+    chatScreen.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+
+    sidebarProfileName.textContent = "Username";
+
+    sidebarProfileAvatar.innerHTML = "P";
+});

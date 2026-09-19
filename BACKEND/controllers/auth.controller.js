@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const signup = async (req, res) => {
     try {
-        let { username, password } = req.body;
+        let { username, email, password } = req.body;
         
         username = username?.trim().toLowerCase();
 
@@ -20,9 +21,21 @@ export const signup = async (req, res) => {
             });
         }
 
-        if (password.length < 6) {
+        if (password.length < 9) {
             return res.status(400).json({
                 message: "Password must be at least 6 characters"
+            });
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            return res.status(400).json({
+                message: "Password must contain at least one capital letter"
+            });
+        }
+
+        if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\]\/+=;'`~]/.test(password)) {
+            return res.status(400).json({
+                message: "Password must contain at least one special character"
             });
         }
 
@@ -34,11 +47,35 @@ export const signup = async (req, res) => {
             });
         }
 
+        let profile = "";
+
+        if (req.file) {
+            const uploadResult = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "chatapp/profiles"
+                    },
+                    (error, result) => {
+
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(result);
+                        }
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+
+            profile = uploadResult.secure_url;
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
             username,
-            password: hashedPassword
+            email,
+            password: hashedPassword,
+            profile
         });
 
         res.status(201).json({
@@ -64,21 +101,25 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        let { username, password } = req.body;
+        let { email, password } = req.body;
 
-        username = username?.trim().toLowerCase();
-
-        if (!username || !password) {
+        if (!email.endsWith("@akgec.ac.in")) {
             return res.status(400).json({
-                message: "Username and password are required"
+                message: "Please use your AKGEC email (@akgec.ac.in)."
             });
         }
 
-        const user = await User.findOne({ username });
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "Email and password are required"
+            });
+        }
+
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(401).json({
-                message: "Invalid username or password"
+                message: "Invalid email or password"
             });
         }
 
@@ -89,7 +130,7 @@ export const login = async (req, res) => {
 
         if (!passwordMatch) {
             return res.status(401).json({
-                message: "Invalid username or password"
+                message: "Invalid email or password"
             });
         }
 
@@ -110,7 +151,8 @@ export const login = async (req, res) => {
             token,
             user: {
                 id: user._id.toString(),
-                username: user.username
+                username: user.username,
+                profile: user.profile
             }
         });
 

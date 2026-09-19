@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+import "dotenv/config";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
@@ -10,8 +10,7 @@ import { User } from "./models/user.js";
 import { signup, login } from "./controllers/auth.controller.js";
 import jwt from "jsonwebtoken";
 
-
-dotenv.config();
+import upload from "./middleware/upload.js";
 
 const app = express();
 const server = createServer(app);
@@ -34,7 +33,7 @@ app.get("/", (req, res) => {
     res.sendFile(join(__dirname, "../FRONTEND/index.html"));
 });
 
-app.post("/api/signup", signup);
+app.post("/api/signup" ,upload.single('profilePicture'), signup);
 
 app.post("/api/login", login);
 
@@ -50,14 +49,15 @@ io.use(async(socket, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.userId).select("_id username").lean();
+        const user = await User.findById(decoded.userId).select("_id username profile").lean();
 
         if (!user) {
             return next(new Error("User no longer exists"));
         }
 
-        socket.userId = decoded.userId;
-        socket.username = decoded.username;
+        socket.userId = user._id.toString();
+        socket.username = user.username;
+        socket.profile = socket.profile || "",
         next();
 
     } catch (error) {
@@ -93,13 +93,14 @@ io.on("connection", async (socket) => {
                     $ne: socket.userId
                 }
             })
-                .select("_id username")
+                .select("_id username profile")
                 .limit(20)
                 .lean();
 
             const results = users.map((user) => ({
                 id: user._id.toString(),
                 username: user.username,
+                profile: user.profile,
                 online: onlineUsers.has(user._id.toString())
             }));
 
@@ -134,14 +135,23 @@ io.on("connection", async (socket) => {
                 createdAt: 1
             }).lean();
 
-            const messageData = messages.map((message) => ({
-                id: message._id.toString(),
-                senderId: message.senderId.toString(),
-                receiverId: message.receiverId.toString(),
-                senderName: message.senderName || "",
-                message: message.message,
-                createdAt: message.createdAt
-            })
+            const messageData = await Promise.all(
+                messages.map(async (message) => {
+
+                    const sender = await User.findById(message.senderId)
+                        .select("profile")
+                        .lean();
+
+                    return {
+                        id: message._id.toString(),
+                        senderId: message.senderId.toString(),
+                        receiverId: message.receiverId.toString(),
+                        senderName: message.senderName || "",
+                        senderProfile: sender?.profile || "",
+                        message: message.message,
+                        createdAt: message.createdAt
+                    };
+                })
             );
 
             socket.emit("chat-history", messageData);
@@ -175,13 +185,14 @@ io.on("connection", async (socket) => {
                 if (!chatUsers.has(otherUserId)) {
 
                     const user = await User.findById(otherUserId)
-                        .select("_id username")
+                        .select("_id username profile")
                         .lean();
 
                     if (user) {
                         chatUsers.set(otherUserId, {
                             id: user._id.toString(),
                             username: user.username,
+                            profile: user.profile,
                             online: onlineUsers.has(
                                 user._id.toString()
                             )
@@ -230,6 +241,7 @@ io.on("connection", async (socket) => {
                 senderId: socket.userId,
                 receiverId: receiverId,
                 senderName: socket.username,
+                senderProfile: socket.profile || "",
                 message: newMessage.message,
                 createdAt: newMessage.createdAt
             };
@@ -240,12 +252,14 @@ io.on("connection", async (socket) => {
             socket.emit("chat-added", {
                 id: receiverId,
                 username: receiver.username,
+                profile: receiver.profile,
                 online: true
             });
 
             io.to(`user:${receiverId}`).emit("chat-added", {
                 id: socket.userId,
                 username: socket.username,
+                profile: socket.profile,
                 online: true
             });
 
