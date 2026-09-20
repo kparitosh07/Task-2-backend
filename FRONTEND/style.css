@@ -1797,3 +1797,26 @@ html, body {
     font-size: 13px;
     color: #aaa;
 }
+
+.or-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
+
+.google-login-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}

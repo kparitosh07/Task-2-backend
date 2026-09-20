@@ -29,6 +29,8 @@ const profileInput = document.getElementById("signup-profile");
 const profilePreview = document.getElementById("profile-preview");
 const profilePlaceholder = document.getElementById("profile-placeholder");
 
+const GOOGLE_CLIENT_ID = "712259676695-036vmfom16n64i6uo6lrvnukdlq3ed5b.apps.googleusercontent.com";
+
 let selectedUserId = null;
 let selectedUserName = null;
 
@@ -528,7 +530,6 @@ if (savedToken && savedUser) {
     }
 }
 
-
 profileInput.addEventListener("change", () => {
 
     const file = profileInput.files[0];
@@ -591,4 +592,62 @@ logoutBtn.addEventListener("click", () => {
     sidebarProfileName.textContent = "Username";
 
     sidebarProfileAvatar.innerHTML = "P";
+});
+
+function initializeGoogleLogin() {
+
+    google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleLogin
+    });
+
+    google.accounts.id.renderButton(
+        document.getElementById("google-login-button"),
+        {
+            theme: "outline",
+            size: "large",
+            width: 300,
+            text: "signin_with"
+        }
+    );
+}
+
+async function handleGoogleLogin(response) {
+    loginError.textContent = "";
+    try {
+        const res = await fetch("/api/google-login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                credential: response.credential
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            loginError.textContent = data.message;
+            return;
+        }
+
+        currentUser = data.user;
+        localStorage.setItem("chatapp_token",data.token);
+
+        localStorage.setItem("chatapp_user",JSON.stringify(data.user));
+
+        updateSidebarProfile();
+        authScreen.classList.add("hidden");
+        connectSocket(data.token);
+
+    } catch (error) {
+        console.error("Google login error:", error);
+        loginError.textContent ="Google login failed. Please try again.";
+    }
+}
+
+window.addEventListener("load", () => {
+    if (window.google) {
+        initializeGoogleLogin();
+    }
 });
