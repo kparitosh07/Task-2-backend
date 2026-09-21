@@ -21,6 +21,12 @@ export const signup = async (req, res) => {
             });
         }
 
+        if (!email.endsWith("@akgec.ac.in")) {
+            return res.status(400).json({
+                message: "Please use your AKGEC email (@akgec.ac.in)."
+            });
+        }
+
         if (username.length < 3 || username.length > 20) {
             return res.status(400).json({
                 message: "Username must be 3-20 characters"
@@ -29,7 +35,7 @@ export const signup = async (req, res) => {
 
         if (password.length < 9) {
             return res.status(400).json({
-                message: "Password must be at least 6 characters"
+                message: "Password must be at least 9 characters"
             });
         }
 
@@ -53,35 +59,13 @@ export const signup = async (req, res) => {
             });
         }
 
-        let profile = "";
-
-        if (req.file) {
-            const uploadResult = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    {
-                        folder: "chatapp/profiles"
-                    },
-                    (error, result) => {
-
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result);
-                        }
-                    }
-                );
-                stream.end(req.file.buffer);
-            });
-
-            profile = uploadResult.secure_url;
-        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
             username,
             email,
             password: hashedPassword,
-            profile
+            profile: "" 
         });
 
         res.status(201).json({

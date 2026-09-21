@@ -4,7 +4,7 @@ import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
-router.post("/signup",upload.single("profilePicture"),signup);
+router.post("/signup", signup);
 
 router.post("/login", login);
 

@@ -31,3 +31,13 @@ export const searchUsers = async (socket, onlineUsers, search) => {
         console.log("Search users error:", error);
     }
 };
+
+export const profileUpdated = (socket,io) => {
+
+    socket.on("profile-updated", (profile) => {
+        io.emit("profile-updated", {
+            userId: socket.userId,
+            profile
+        });
+    });
+};

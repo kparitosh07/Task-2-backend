@@ -75,25 +75,6 @@
 
     <div class="auth-card">
 
-      <div class="profile-upload">
-    <label for="signup-profile">
-        <img id="profile-preview" src="" alt="Profile">
-        
-        <div class="profile-placeholder" id="profile-placeholder">
-            +
-        </div>
-    </label>
-
-    <input
-        type="file"
-        id="signup-profile"
-        accept="image/*"
-        hidden
-    >
-
-    <p>Upload Profile Picture</p>
-</div>
-
       <h1>Create Account</h1>
 
       <p class="auth-subtitle">
@@ -177,9 +158,19 @@
 
       <div class="sidebar-profile">
           <div class="sidebar-profile-info">
-              <div class="sidebar-profile-avatar" id="sidebar-profile-avatar">
+              <div
+                  class="sidebar-profile-avatar"
+                  id="sidebar-profile-avatar"
+              >
                   P
               </div>
+
+              <input
+                  type="file"
+                  id="profile-input"
+                  accept="image/*"
+                  hidden
+              >
 
               <div class="sidebar-profile-details">
                   <div class="sidebar-profile-name" id="sidebar-profile-name">

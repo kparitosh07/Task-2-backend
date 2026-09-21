@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
     {
         profile: {
-            type: String
+            type: String,
+            default: ""
         },
 
         username: {

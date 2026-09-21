@@ -1,6 +1,7 @@
 import socketAuth from "../middleware/socketAuth.js";
-import { searchUsers } from "./user.socket.js";
+import { searchUsers,profileUpdated } from "./user.socket.js";
 import { registerChatHandlers } from "./chat.socket.js";
+
 
 const onlineUsers = new Map();
 
@@ -32,6 +33,7 @@ export const registerSocketHandlers = (io) => {
                 onlineUsers,
                 search
             );
+            profileUpdated(socket, io);
         });
 
         registerChatHandlers(

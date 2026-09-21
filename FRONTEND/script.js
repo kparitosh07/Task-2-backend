@@ -19,15 +19,14 @@ const chatHeaderName = document.getElementById("chat-header-name");
 const chatHeaderStatus = document.getElementById("chat-header-status");
 const chatHeaderAvatar = document.getElementById("chat-header-avatar");
 
-const sidebarProfileAvatar =document.getElementById("sidebar-profile-avatar");
+const sidebarProfileAvatar = document.getElementById("sidebar-profile-avatar");
 
-const sidebarProfileName =document.getElementById("sidebar-profile-name");
+const sidebarProfileName = document.getElementById("sidebar-profile-name");
 
-const logoutBtn =document.getElementById("logout-btn");
+const profileInput = document.getElementById("profile-input");
 
-const profileInput = document.getElementById("signup-profile");
-const profilePreview = document.getElementById("profile-preview");
-const profilePlaceholder = document.getElementById("profile-placeholder");
+const logoutBtn = document.getElementById("logout-btn");
+
 
 const GOOGLE_CLIENT_ID = "712259676695-036vmfom16n64i6uo6lrvnukdlq3ed5b.apps.googleusercontent.com";
 
@@ -51,7 +50,7 @@ loginForm.addEventListener("submit", async (e) => {
             "Please use your AKGEC email (@akgec.ac.in).";
         return;
     }
-    
+
     try {
         const response = await fetch("/api/login", {
             method: "POST",
@@ -115,23 +114,20 @@ signupForm.addEventListener("submit", async (e) => {
         return;
     }
 
-    const formData = new FormData();
-
-    formData.append("username", username);
-    formData.append("email", email);
-    formData.append("password", password);
-
-    const profilePicture = profileInput.files[0];
-
-    if (profilePicture) {
-        formData.append("profilePicture", profilePicture);
-    }
+    const body = {
+        username,
+        email,
+        password
+    };
 
 
     try {
         const response = await fetch("/api/signup", {
             method: "POST",
-            body: formData
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
         });
 
         const data = await response.json();
@@ -144,9 +140,6 @@ signupForm.addEventListener("submit", async (e) => {
         alert("Account created successfully! Please login.");
 
         signupForm.reset();
-        profilePreview.src = "";
-        profilePreview.style.display = "none";
-        profilePlaceholder.style.display = "flex";
         signupScreen.classList.add("hidden");
         authScreen.classList.remove("hidden");
     } catch (error) {
@@ -177,7 +170,7 @@ function showHomeScreen() {
 }
 
 function connectSocket(token) {
-    socket = io({auth: {token}});
+    socket = io({ auth: { token } });
     showHomeScreen();
 
     socket.on("connect", () => {
@@ -207,14 +200,81 @@ function connectSocket(token) {
     });
 
     socket.on("search-results", (users) => {
-    chatList.innerHTML = "";
+        chatList.innerHTML = "";
 
-    users.forEach((user, index) => {
-        if (user.id === currentUser.id) return;
+        socket.on("profile-updated", ({ userId, profile }) => {
 
-        addChatUser(user, index);
+            // Update current user's local data
+            if (currentUser.id === userId) {
+                currentUser.profile = profile;
+
+                localStorage.setItem(
+                    "chatapp_user",
+                    JSON.stringify(currentUser)
+                );
+
+                updateSidebarProfile();
+            }
+
+            // Update user in chat list
+            const chatItem = chatList.querySelector(
+                `.chat-item[data-user-id="${userId}"]`
+            );
+
+            if (chatItem) {
+
+                chatItem.dataset.profile = profile || "";
+
+                const avatar = chatItem.querySelector(".avatar");
+
+                if (avatar) {
+
+                    if (profile) {
+                        avatar.innerHTML = `
+                    <img
+                        src="${escapeHTML(profile)}"
+                        alt="Profile"
+                    >
+                `;
+                    } else {
+
+                        const username =
+                            chatItem.dataset.username || "U";
+
+                        avatar.textContent =
+                            username.charAt(0).toUpperCase();
+                    }
+                }
+            }
+
+            // Update selected chat header if necessary
+            if (selectedUserId === userId) {
+
+                if (profile) {
+
+                    chatHeaderAvatar.innerHTML = `
+                <img
+                    src="${escapeHTML(profile)}"
+                    alt="Profile"
+                >
+            `;
+
+                } else {
+
+                    chatHeaderAvatar.textContent =
+                        selectedUserName
+                            .charAt(0)
+                            .toUpperCase();
+                }
+            }
+        });
+
+        users.forEach((user, index) => {
+            if (user.id === currentUser.id) return;
+
+            addChatUser(user, index);
+        });
     });
-});
 
     socket.on("chat-history", (messages) => {
         if (!selectedUserId) return;
@@ -276,9 +336,8 @@ function addChatUser(user, index = 0) {
     item.innerHTML = `
         <div class="avatar-wrap">
             <div class="avatar grad-${(index % 5) + 1}">
-                ${ 
-                    user.profile? `<img src="${escapeHTML(user.profile)}" alt="Profile">`: escapeHTML(user.username.charAt(0).toUpperCase())
-                }
+                ${user.profile ? `<img src="${escapeHTML(user.profile)}" alt="Profile">` : escapeHTML(user.username.charAt(0).toUpperCase())
+        }
             </div>
             <span class="online-badge ${user.online ? "" : "offline"}"></span>
         </div>
@@ -433,30 +492,27 @@ function displayMessage(data, isOutgoing) {
         "User";
 
     row.innerHTML = `
-        ${
-            !isOutgoing
-                ? `
+        ${!isOutgoing
+            ? `
                     <div class="avatar-wrap">
                         <div class="msg-avatar">
-                            ${
-                                data.senderProfile? `<img src="${escapeHTML(data.senderProfile)}" alt="Profile">`: escapeHTML(senderName.charAt(0).toUpperCase())
-                            }
+                            ${data.senderProfile ? `<img src="${escapeHTML(data.senderProfile)}" alt="Profile">` : escapeHTML(senderName.charAt(0).toUpperCase())
+            }
                         </div>
                     </div>
                 `
-                : ""
+            : ""
         }
 
         <div class="bubble">
-            ${
-                !isOutgoing
-                    ? `
+            ${!isOutgoing
+            ? `
                         <div class="bubble-sender">
                             ${escapeHTML(senderName)}
                         </div>
                     `
-                    : ""
-            }
+            : ""
+        }
 
             <span class="bubble-text">
                 ${escapeHTML(data.message)}
@@ -465,13 +521,12 @@ function displayMessage(data, isOutgoing) {
             <div class="bubble-meta">
                 <span>${time}</span>
 
-                ${
-                    isOutgoing
-                        ? `
+                ${isOutgoing
+            ? `
                             <span class="ticks">✓✓</span>
                         `
-                        : ""
-                }
+            : ""
+        }
             </div>
         </div>
     `;
@@ -530,19 +585,6 @@ if (savedToken && savedUser) {
     }
 }
 
-profileInput.addEventListener("change", () => {
-
-    const file = profileInput.files[0];
-
-    if (!file) return;
-
-    const imageURL = URL.createObjectURL(file);
-
-    profilePreview.src = imageURL;
-    profilePreview.style.display = "block";
-
-    profilePlaceholder.style.display = "none";
-});
 
 function updateSidebarProfile() {
 
@@ -568,6 +610,80 @@ function updateSidebarProfile() {
                 .toUpperCase();
     }
 }
+
+sidebarProfileAvatar.addEventListener("click", () => {
+    profileInput.click();
+});
+
+sidebarProfileAvatar.addEventListener("click", () => {
+    profileInput.click();
+});
+
+profileInput.addEventListener("change", async () => {
+
+    const file = profileInput.files[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+
+    formData.append("profilePicture", file);
+
+    const token =
+        localStorage.getItem("chatapp_token");
+
+    try {
+
+        const response = await fetch(
+            "/api/user/profile",
+            {
+                method: "PUT",
+
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message);
+            return;
+        }
+
+        // Update current user
+        currentUser.profile = data.profile;
+
+        // Save updated user
+        localStorage.setItem(
+            "chatapp_user",
+            JSON.stringify(currentUser)
+        );
+
+        // Update sidebar
+        updateSidebarProfile();
+
+        socket.emit("profile-updated", {
+            profile: data.profile
+        });
+
+        // Reset input so the same image
+        // can be selected again later
+        profileInput.value = "";
+
+    } catch (error) {
+
+        console.error(
+            "Profile upload error:",
+            error
+        );
+
+        alert("Failed to update profile picture");
+    }
+});
 
 logoutBtn.addEventListener("click", () => {
 
@@ -632,9 +748,9 @@ async function handleGoogleLogin(response) {
         }
 
         currentUser = data.user;
-        localStorage.setItem("chatapp_token",data.token);
+        localStorage.setItem("chatapp_token", data.token);
 
-        localStorage.setItem("chatapp_user",JSON.stringify(data.user));
+        localStorage.setItem("chatapp_user", JSON.stringify(data.user));
 
         updateSidebarProfile();
         authScreen.classList.add("hidden");
@@ -642,7 +758,7 @@ async function handleGoogleLogin(response) {
 
     } catch (error) {
         console.error("Google login error:", error);
-        loginError.textContent ="Google login failed. Please try again.";
+        loginError.textContent = "Google login failed. Please try again.";
     }
 }
 
