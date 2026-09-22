@@ -4,7 +4,6 @@ import crypto from "node:crypto";
 import { OAuth2Client } from "google-auth-library";
 
 import { User } from "../models/user.js";
-import cloudinary from "../config/cloudinary.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
