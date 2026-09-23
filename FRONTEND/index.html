@@ -116,6 +116,59 @@
 
   </div>
 
+  <!-- EMAIL VERIFICATION SCREEN -->
+<div class="auth-screen hidden" id="verify-screen">
+
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      ✉️
+    </div>
+
+    <h1>Verify your email</h1>
+
+    <p class="auth-subtitle">
+      We sent a 6-digit verification code to
+    </p>
+
+    <p id="verify-email" class="verify-email"></p>
+
+    <form id="verify-form">
+
+      <div class="otp-container">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+      </div>
+
+      <button type="submit">
+        Verify Email
+      </button>
+
+    </form>
+
+    <p id="verify-message"></p>
+
+    <p class="auth-switch">
+      Didn't receive the code?
+      <button type="button" id="resend-otp">
+        Resend OTP
+      </button>
+    </p>
+
+    <p class="auth-switch">
+      <button type="button" id="back-to-login">
+        Back to Login
+      </button>
+    </p>
+
+  </div>
+
+</div>
+
   <div class="telegram-app">
 
     <!-- ====================================================================

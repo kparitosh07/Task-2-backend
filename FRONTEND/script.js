@@ -3,6 +3,20 @@ let currentUser = null;
 
 const authScreen = document.getElementById("auth-screen");
 const signupScreen = document.getElementById("signup-screen");
+
+const verifyScreen = document.getElementById("verify-screen");
+
+const verifyForm = document.getElementById("verify-form");
+const verifyEmail = document.getElementById("verify-email");
+const verifyMessage = document.getElementById("verify-message");
+
+const resendOtp = document.getElementById("resend-otp");
+const backToLogin = document.getElementById("back-to-login");
+
+const otpInputs = document.querySelectorAll(".otp-input");
+
+let verificationEmail = "";
+
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 const showSignup = document.getElementById("show-signup");
@@ -137,11 +151,16 @@ signupForm.addEventListener("submit", async (e) => {
             return;
         }
 
-        alert("Account created successfully! Please login.");
+        verificationEmail = data.email || email;
 
-        signupForm.reset();
-        signupScreen.classList.add("hidden");
-        authScreen.classList.remove("hidden");
+verifyEmail.textContent = verificationEmail;
+
+signupForm.reset();
+
+signupScreen.classList.add("hidden");
+verifyScreen.classList.remove("hidden");
+
+verifyMessage.textContent = "";
     } catch (error) {
         console.error("Signup error:", error);
         signupError.textContent = "Unable to connect to server.";
@@ -154,6 +173,200 @@ showSignup.addEventListener("click", (e) => {
     signupScreen.classList.remove("hidden");
     loginError.textContent = "";
 });
+
+
+verifyForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    verifyMessage.textContent = "";
+
+    const otp = [...otpInputs]
+        .map(input => input.value)
+        .join("");
+
+    if (otp.length !== 6) {
+        verifyMessage.textContent = "Please enter the complete OTP.";
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/api/verify-email", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                email: verificationEmail,
+                otp
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            verifyMessage.textContent = data.message;
+            return;
+        }
+
+        verifyMessage.textContent =
+            "Email verified successfully!";
+
+        otpInputs.forEach(input => {
+            input.value = "";
+        });
+
+        setTimeout(() => {
+
+            verifyScreen.classList.add("hidden");
+            authScreen.classList.remove("hidden");
+
+            loginError.textContent =
+                "Email verified. You can now login.";
+
+        }, 1000);
+
+    } catch (error) {
+
+        console.error("Verification error:", error);
+
+        verifyMessage.textContent =
+            "Unable to connect to server.";
+    }
+});
+
+
+otpInputs.forEach((input, index) => {
+
+    input.addEventListener("input", () => {
+
+        input.value = input.value.replace(/\D/g, "");
+
+        if (input.value && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+        }
+
+    });
+
+    input.addEventListener("keydown", (e) => {
+
+        if (
+            e.key === "Backspace" &&
+            !input.value &&
+            index > 0
+        ) {
+            otpInputs[index - 1].focus();
+        }
+
+    });
+
+});
+
+let resendCooldown = 0;
+let resendTimer = null;
+
+resendOtp.addEventListener("click", async () => {
+
+    if (resendCooldown > 0) {
+        return;
+    }
+
+    if (!verificationEmail) {
+        verifyMessage.textContent = "Email not found.";
+        return;
+    }
+
+    resendOtp.disabled = true;
+
+    verifyMessage.textContent = "Sending new OTP...";
+
+    try {
+
+        const response = await fetch("/api/resend-otp", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                email: verificationEmail
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            verifyMessage.textContent = data.message;
+
+            resendOtp.disabled = false;
+
+            return;
+        }
+
+        verifyMessage.textContent =
+            "New OTP sent successfully!";
+
+        otpInputs.forEach(input => {
+            input.value = "";
+        });
+
+        otpInputs[0].focus();
+
+        // Start 60 second cooldown
+        resendCooldown = 60;
+
+        resendOtp.textContent =
+            `Resend OTP (${resendCooldown}s)`;
+
+        resendTimer = setInterval(() => {
+
+            resendCooldown--;
+
+            resendOtp.textContent =
+                `Resend OTP (${resendCooldown}s)`;
+
+            if (resendCooldown <= 0) {
+
+                clearInterval(resendTimer);
+
+                resendTimer = null;
+
+                resendOtp.disabled = false;
+
+                resendOtp.textContent =
+                    "Resend OTP";
+            }
+
+        }, 1000);
+
+    } catch (error) {
+
+        console.error("Resend OTP error:", error);
+
+        verifyMessage.textContent =
+            "Unable to connect to server.";
+
+        resendOtp.disabled = false;
+    }
+});
+
+backToLogin.addEventListener("click", () => {
+
+    verifyScreen.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+
+    verifyMessage.textContent = "";
+
+    otpInputs.forEach(input => {
+        input.value = "";
+    });
+
+});
+
 
 showLogin.addEventListener("click", (e) => {
     e.preventDefault();

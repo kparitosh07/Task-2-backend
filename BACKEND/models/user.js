@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             validate: {
-                validator: function(v) {
+                validator: function (v) {
                     return v.endsWith('@akgec.ac.in');
                 },
                 message: props => `${props.value} is not a permitted email domain!`
@@ -40,6 +40,19 @@ const userSchema = new mongoose.Schema(
             unique: true,
             sparse: true
         },
+
+        emailVerified: {
+            type: Boolean,
+            default: false
+        },
+
+        emailVerificationOTP: {
+            type: String
+        },
+
+        emailVerificationOTPExpires: {
+            type: Date
+        }
     },
     {
         timestamps: true
