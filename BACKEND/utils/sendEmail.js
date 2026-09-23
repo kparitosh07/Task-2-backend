@@ -10,13 +10,9 @@ const transporter = nodemailer.createTransport({
 
 export const sendVerificationEmail = async (email, otp) => {
     try {
-        console.log("EMAIL_USER:", process.env.EMAIL_USER);
-        console.log(
-            "EMAIL_PASSWORD exists:",
-            !!process.env.EMAIL_PASSWORD
-        );
+        console.log("Trying to send email to:", email);
 
-        await transporter.sendMail({
+        const info = await transporter.sendMail({
             from: `"ChatApp" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: "Verify your ChatApp account",
@@ -28,10 +24,15 @@ export const sendVerificationEmail = async (email, otp) => {
             `
         });
 
-        console.log("EMAIL SENT SUCCESSFULLY");
+        console.log("EMAIL SENT:", info.messageId);
 
     } catch (error) {
-        console.error("NODEMAILER ERROR:", error);
+        console.error("NODEMAILER ERROR:");
+        console.error("code:", error.code);
+        console.error("command:", error.command);
+        console.error("response:", error.response);
+        console.error("message:", error.message);
+
         throw error;
     }
 };
