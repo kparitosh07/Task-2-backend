@@ -1,25 +1,28 @@
-import nodemailer from "nodemailer";
+import { BrevoClient } from "@getbrevo/brevo";
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
+const brevo = new BrevoClient({
+    apiKey: process.env.BREVO_API_KEY
 });
 
 export const sendVerificationEmail = async (email, otp) => {
     try {
         console.log("Trying to send email to:", email);
 
-        const info = await transporter.sendMail({
-            from: `"ChatApp" <${process.env.EMAIL_USER}>`,
-            to: email,
+        const result = await brevo.transactionalEmails.sendTransacEmail({
+            sender: {
+                name: "ChatApp",
+                email: process.env.BREVO_EMAIL
+            },
+
+            to: [
+                {
+                    email: email
+                }
+            ],
+
             subject: "Verify your ChatApp account",
 
-            html: `
+            htmlContent: `
                 <div style="font-family: Arial; padding: 20px;">
                     <h2>Verify your ChatApp account</h2>
 
@@ -36,15 +39,10 @@ export const sendVerificationEmail = async (email, otp) => {
             `
         });
 
-        console.log("EMAIL SENT:", info.messageId);
+        console.log("EMAIL SENT:", result);
 
     } catch (error) {
-        console.error("NODEMAILER ERROR:");
-        console.error("code:", error.code);
-        console.error("command:", error.command);
-        console.error("response:", error.response);
-        console.error("message:", error.message);
-
+        console.error("BREVO EMAIL ERROR:", error);
         throw error;
     }
 };
